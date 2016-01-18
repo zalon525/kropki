@@ -34,16 +34,20 @@ public class UpdateThread extends Thread {
 		this.config = config;
 	}
 
-	public void addGameListener(GameEventListener gl) {
+	public void addGameEventListener(GameEventListener gl) {
 		gameListeners.add(gl);
 	}
 
-	public void removeGameListener(GameEventListener gl) {
+	public void removeGameEventListener(GameEventListener gl) {
 		gameListeners.remove(gl);
 	}
 
-	public void kill() {
-		running = false;
+	public boolean isRunning() {
+		return running;
+	}
+
+	public synchronized void setRunning(boolean running) {
+		this.running = running;
 	}
 
 	private int getScrollX() {
@@ -52,7 +56,7 @@ public class UpdateThread extends Thread {
 
 	private void addToScrollX(int delta) {
 		dScrollX = delta;
-		this.scrollX = scrollX + delta;
+		scrollX = scrollX + delta;
 	}
 
 	private int getScrollY() {
@@ -61,7 +65,7 @@ public class UpdateThread extends Thread {
 
 	private void addToScrollY(int delta) {
 		dScrollY = delta;
-		this.scrollY = scrollY + delta;
+		scrollY = scrollY + delta;
 	}
 
 	private int getdScrollX() {
@@ -72,67 +76,76 @@ public class UpdateThread extends Thread {
 		return dScrollY;
 	}
 
+	private void centerViewOnPlayer(Player player) {
+		addToScrollX(player.getX() - (frame.getWidth() / 2));
+		addToScrollY(player.getY() - (frame.getHeight() / 2));
+	}
+
+	private void updateEntities() {
+		for (Entity e : entities) {
+			GameEvent ge = e.update();
+			if (ge != null) {
+				for (GameEventListener gl : gameListeners) {
+					gl.onGameEvent(ge);
+				}
+			}
+		}
+	}
+
+	private void drawGameScreen(Graphics2D g, BufferedImage gameScreen, Color backgroundColor) {
+		synchronized (gameScreen) {
+			g.translate(-getdScrollX(), -getdScrollY());
+			g.setBackground(backgroundColor);
+			g.clearRect(getScrollX(), getScrollY(), gameScreen.getWidth(), gameScreen.getHeight());
+			for (Entity e : entities) {
+				e.draw(g);
+			}
+		}
+	}
+
+	private void calculateScroll(Player player, int nonScrollingAreaWidth, int nonScrollingAreaHeight) {
+		int x = (frame.getWidth() - nonScrollingAreaWidth) / 2 + getScrollX();
+		int y = (frame.getHeight() - nonScrollingAreaHeight) / 2 + getScrollY();
+		Rectangle nonScrollRect = new Rectangle(x, y, nonScrollingAreaWidth, nonScrollingAreaHeight);
+
+		if (player.getX() > (int) (nonScrollRect.getMaxX())) {
+			addToScrollX(player.getX() - (nonScrollRect.x + nonScrollRect.width));
+		} else if (player.getX() < (int) (nonScrollRect.getMinX())) {
+			addToScrollX(player.getX() - nonScrollRect.x);
+		} else {
+			addToScrollX(0);
+		}
+		if (player.getY() > (int) (nonScrollRect.getMaxY())) {
+			addToScrollY(player.getY() - (nonScrollRect.y + nonScrollRect.height));
+		} else if (player.getY() < (int) (nonScrollRect.getMinY())) {
+			addToScrollY(player.getY() - nonScrollRect.y);
+		} else {
+			addToScrollY(0);
+		}
+	}
+
 	public void run() {
 		BufferedImage gameScreen = frame.getGameScreen();
 		Graphics2D g = gameScreen.createGraphics();
 		Player player = Player.getInstance();
-		Rectangle nonScrollRect = new Rectangle();
 
-		// center the view on the player
-		this.addToScrollX(player.getX() - (frame.getWidth() / 2));
-		this.addToScrollY(player.getY() - (frame.getHeight() / 2));
+		Color backgroundColor = ParsingUtil.parseColor(config.getProperty(ConfigurationModel.DEFAULT_BACKROUND_COLOR));
+		int nonScrollingAreaWidth = Integer.valueOf(config.getProperty(ConfigurationModel.NON_SCROLLING_AREA_WIDTH));
+		int nonScrollingAreaHeight = Integer.valueOf(config.getProperty(ConfigurationModel.NON_SCROLLING_AREA_HEIGHT));
 
-		running = true;
+		centerViewOnPlayer(player);
 
-		while (running) {
+		setRunning(true);
 
-			// update
-			for (Entity e : entities) {
-				GameEvent ge = e.update();
-				if (ge != null) {
-					for (GameEventListener gl : gameListeners) {
-						gl.onGameEvent(ge);
-					}
-				}
-			}
+		while (isRunning()) {
 
-			Color backgroundColor = ParsingUtil
-					.parseColor(config.getProperty(ConfigurationModel.DEFAULT_BACKROUND_COLOR));
-			// draw to the game screen
-			synchronized (gameScreen) {
-				g.translate(-getdScrollX(), -getdScrollY());
-				g.setBackground(backgroundColor);
-				g.clearRect(getScrollX(), getScrollY(), gameScreen.getWidth(), gameScreen.getHeight());
-				for (Entity e : entities) {
-					e.draw(g);
-				}
-			}
+			updateEntities();
 
-			// tell the frame to draw the game screen onto the window
+			drawGameScreen(g, gameScreen, backgroundColor);
+
 			frame.repaint();
 
-			int nonScrollingAreaWidth = Integer
-					.valueOf(config.getProperty(ConfigurationModel.NON_SCROLLING_AREA_WIDTH));
-			int nonScrollingAreaHeight = Integer
-					.valueOf(config.getProperty(ConfigurationModel.NON_SCROLLING_AREA_HEIGHT));
-			// calculate the scroll
-			int x = (frame.getWidth() - nonScrollingAreaWidth) / 2 + getScrollX();
-			int y = (frame.getHeight() - nonScrollingAreaHeight) / 2 + getScrollY();
-			nonScrollRect = new Rectangle(x, y, nonScrollingAreaWidth, nonScrollingAreaHeight);
-			if (player.getX() > (int) (nonScrollRect.getMaxX())) {
-				addToScrollX(player.getX() - (nonScrollRect.x + nonScrollRect.width));
-			} else if (player.getX() < (int) (nonScrollRect.getMinX())) {
-				addToScrollX(player.getX() - nonScrollRect.x);
-			} else {
-				addToScrollX(0);
-			}
-			if (player.getY() > (int) (nonScrollRect.getMaxY())) {
-				addToScrollY(player.getY() - (nonScrollRect.y + nonScrollRect.height));
-			} else if (player.getY() < (int) (nonScrollRect.getMinY())) {
-				addToScrollY(player.getY() - nonScrollRect.y);
-			} else {
-				addToScrollY(0);
-			}
+			calculateScroll(player, nonScrollingAreaWidth, nonScrollingAreaHeight);
 
 			// sleep... zzzzz
 			try {

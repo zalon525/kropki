@@ -109,7 +109,7 @@ public class GameController implements GameEventListener {
 
 	public void pause() {
 		if (updateThread != null) {
-			updateThread.kill();
+			updateThread.setRunning(false);
 		}
 		updateThread = null;
 	}
@@ -117,7 +117,7 @@ public class GameController implements GameEventListener {
 	public void resume() {
 		if (updateThread == null) {
 			updateThread = new UpdateThread(currentScene.getEntities(), frame, config);
-			updateThread.addGameListener(this);
+			updateThread.addGameEventListener(this);
 			updateThread.start();
 		}
 	}
