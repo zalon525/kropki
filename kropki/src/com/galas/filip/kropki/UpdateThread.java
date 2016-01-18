@@ -50,6 +50,38 @@ public class UpdateThread extends Thread {
 		this.running = running;
 	}
 
+	public void run() {
+		BufferedImage gameScreen = frame.getGameScreen();
+		Graphics2D g = gameScreen.createGraphics();
+		Player player = Player.getInstance();
+
+		Color backgroundColor = ParsingUtil.parseColor(config.getProperty(ConfigurationModel.DEFAULT_BACKROUND_COLOR));
+		int nonScrollingAreaWidth = Integer.valueOf(config.getProperty(ConfigurationModel.NON_SCROLLING_AREA_WIDTH));
+		int nonScrollingAreaHeight = Integer.valueOf(config.getProperty(ConfigurationModel.NON_SCROLLING_AREA_HEIGHT));
+
+		centerViewOnPlayer(player);
+
+		setRunning(true);
+
+		while (isRunning()) {
+
+			updateEntities();
+
+			drawGameScreen(g, gameScreen, backgroundColor);
+
+			frame.repaint();
+
+			calculateScroll(player, nonScrollingAreaWidth, nonScrollingAreaHeight);
+
+			// sleep... zzzzz
+			try {
+				sleep(Integer.valueOf(config.getProperty(ConfigurationModel.UPDATE_DELAY)));
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	private int getScrollX() {
 		return scrollX;
 	}
@@ -121,38 +153,6 @@ public class UpdateThread extends Thread {
 			addToScrollY(player.getY() - nonScrollRect.y);
 		} else {
 			addToScrollY(0);
-		}
-	}
-
-	public void run() {
-		BufferedImage gameScreen = frame.getGameScreen();
-		Graphics2D g = gameScreen.createGraphics();
-		Player player = Player.getInstance();
-
-		Color backgroundColor = ParsingUtil.parseColor(config.getProperty(ConfigurationModel.DEFAULT_BACKROUND_COLOR));
-		int nonScrollingAreaWidth = Integer.valueOf(config.getProperty(ConfigurationModel.NON_SCROLLING_AREA_WIDTH));
-		int nonScrollingAreaHeight = Integer.valueOf(config.getProperty(ConfigurationModel.NON_SCROLLING_AREA_HEIGHT));
-
-		centerViewOnPlayer(player);
-
-		setRunning(true);
-
-		while (isRunning()) {
-
-			updateEntities();
-
-			drawGameScreen(g, gameScreen, backgroundColor);
-
-			frame.repaint();
-
-			calculateScroll(player, nonScrollingAreaWidth, nonScrollingAreaHeight);
-
-			// sleep... zzzzz
-			try {
-				sleep(Integer.valueOf(config.getProperty(ConfigurationModel.UPDATE_DELAY)));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 }
