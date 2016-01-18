@@ -8,8 +8,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.galas.filip.kropki.GameEvent;
-import com.galas.filip.kropki.XMLLoadable;
 import com.galas.filip.kropki.ParsingUtil;
+import com.galas.filip.kropki.XMLLoadable;
 import com.galas.filip.kropki.entity.ai.EnemyAIStrategy;
 
 public class Enemy extends Dot implements XMLLoadable {
@@ -80,9 +80,7 @@ public class Enemy extends Dot implements XMLLoadable {
 				Element e = (Element) (nodeList.item(i));
 				String className = e.getAttribute("class");
 				try {
-					// TODO: this probably doesn't work now as the package
-					// structure has changed
-					ai = (EnemyAIStrategy) (Class.forName("com.galas.filip.kropki." + className).newInstance());
+					ai = (EnemyAIStrategy) (Class.forName(className).newInstance());
 				} catch (InstantiationException ex) {
 					ex.printStackTrace();
 				} catch (IllegalAccessException ex) {

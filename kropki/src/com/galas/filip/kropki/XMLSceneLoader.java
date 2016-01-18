@@ -32,7 +32,7 @@ public class XMLSceneLoader implements SceneLoader {
 
 	public Scene getScene() {
 
-		SortedMap<Integer,List<Entity>> layers = new TreeMap<Integer,List<Entity>>();
+		SortedMap<Integer, List<Entity>> layers = new TreeMap<Integer, List<Entity>>();
 		List<Entity> collidableEntities = new ArrayList<Entity>();
 		Point start = new Point();
 		Color backgroundColor = null;
@@ -77,7 +77,7 @@ public class XMLSceneLoader implements SceneLoader {
 				String className = e.getAttribute("class");
 				Class<?> c = null;
 				try {
-					c = Class.forName("com.galas.filip.kropki." + className);
+					c = Class.forName(className);
 				} catch (ClassNotFoundException ex) {
 					ex.printStackTrace();
 				}
@@ -103,13 +103,12 @@ public class XMLSceneLoader implements SceneLoader {
 					}
 
 					// if collidable
-					if (e.hasAttribute("collidable")
-							&& e.getAttribute("collidable").equals("true")) {
+					if (e.hasAttribute("collidable") && e.getAttribute("collidable").equals("true")) {
 						collidableEntities.add(entity);
 					}
-					
+
 					int layer = Integer.valueOf(e.getAttribute("layer"));
-					
+
 					if (layers.get(layer) == null) {
 						List<Entity> layerList = new ArrayList<Entity>();
 						layerList.add(entity);
