@@ -83,12 +83,12 @@ public class UpdateThread extends Thread {
 				frame.repaint();
 
 				calculateScroll(player, nonScrollingAreaWidth, nonScrollingAreaHeight);
+			}
 
-				try {
-					sleep(updateGranularityMili);
-				} catch (InterruptedException e) {
-					throw new RuntimeException("update sleep interrupted", e);
-				}
+			try {
+				sleep(updateGranularityMili);
+			} catch (InterruptedException e) {
+				throw new RuntimeException("update sleep interrupted", e);
 			}
 		}
 	}
