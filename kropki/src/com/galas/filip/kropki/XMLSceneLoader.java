@@ -21,89 +21,55 @@ import org.xml.sax.SAXException;
 
 import com.galas.filip.kropki.entity.Collider;
 import com.galas.filip.kropki.entity.Entity;
+import com.galas.filip.kropki.exception.SceneLoadingException;
 
 public class XMLSceneLoader implements SceneLoader {
 
 	private File xmlSceneFile;
+	private Scene cachedScene = null;
 
 	public XMLSceneLoader(File xmlSceneFile) {
 		this.xmlSceneFile = xmlSceneFile;
 	}
 
-	public Scene getScene() {
+	public Scene getScene() throws SceneLoadingException {
+
+		if (cachedScene != null) {
+			return cachedScene;
+		}
 
 		SortedMap<Integer, List<Entity>> layers = new TreeMap<Integer, List<Entity>>();
 		List<Entity> collidableEntities = new ArrayList<Entity>();
 		Point start = new Point();
 		Color backgroundColor = null;
 
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder = null;
-		try {
-			dBuilder = dbFactory.newDocumentBuilder();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-		}
-		Document doc = null;
-		try {
-			doc = dBuilder.parse(xmlSceneFile);
-		} catch (SAXException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Document doc = getSceneDocument(xmlSceneFile);
 
-		doc.getDocumentElement().normalize();
+		start = ParsingUtil.parsePoint(doc.getDocumentElement().getAttribute("start"));
 
-		// load start point
-		String str = doc.getDocumentElement().getAttribute("start");
-		start = ParsingUtil.parsePoint(str);
-
-		// load background color
 		if (doc.getDocumentElement().hasAttribute("background")) {
-			str = doc.getDocumentElement().getAttribute("background");
-			backgroundColor = ParsingUtil.parseColor(str);
+			backgroundColor = ParsingUtil.parseColor(doc.getDocumentElement().getAttribute("background"));
 		}
 
-		// load entities
 		NodeList nodeList = doc.getElementsByTagName("entity");
-
 		for (int i = 0; i < nodeList.getLength(); i++) {
 
 			Node n = nodeList.item(i);
 
 			if (n.getNodeType() == Node.ELEMENT_NODE) {
 				Element e = (Element) n;
-				String className = e.getAttribute("class");
-				Class<?> c = null;
-				try {
-					c = Class.forName(className);
-				} catch (ClassNotFoundException ex) {
-					ex.printStackTrace();
-				}
-				Entity entity = null;
-				try {
-					entity = (Entity) (c.newInstance());
-				} catch (InstantiationException ex) {
-					ex.printStackTrace();
-				} catch (IllegalAccessException ex) {
-					ex.printStackTrace();
-				}
+				Entity entity = getEntityFromElement(e);
 
-				// entity must know how to setup itself from an
-				// xml element node
-				if (XMLLoadable.class.isInstance(entity)) {
+				if (entity instanceof XMLLoadable) {
 					XMLLoadable xmlLoadableEntity = (XMLLoadable) entity;
 					xmlLoadableEntity.setupFromXMLElement(e);
 
-					// if collider
-					if (Collider.class.isInstance(entity)) {
+					if (isCollider(entity)) {
 						Collider collider = (Collider) entity;
 						collider.setCollidableEntities(collidableEntities);
 					}
 
-					// if collidable
-					if (e.hasAttribute("collidable") && e.getAttribute("collidable").equals("true")) {
+					if (isCollidable(e)) {
 						collidableEntities.add(entity);
 					}
 
@@ -114,13 +80,54 @@ public class XMLSceneLoader implements SceneLoader {
 						layerList.add(entity);
 						layers.put(layer, layerList);
 					} else {
-						List<Entity> layerList = layers.get(layer);
-						layerList.add(entity);
+						layers.get(layer).add(entity);
 					}
 				}
 			}
 		}
 
-		return new Scene(layers, start, backgroundColor);
+		return cachedScene = new Scene(layers, start, backgroundColor);
+	}
+
+	private static Document getSceneDocument(File sceneFile) throws SceneLoadingException {
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder = null;
+		try {
+			dBuilder = dbFactory.newDocumentBuilder();
+		} catch (ParserConfigurationException e) {
+			throw new SceneLoadingException("xml document builder creation failed", e);
+		}
+		Document doc = null;
+		try {
+			doc = dBuilder.parse(sceneFile);
+		} catch (SAXException | IOException e) {
+			throw new SceneLoadingException("parsing scene file failed", e);
+		}
+		doc.getDocumentElement().normalize();
+
+		return doc;
+	}
+
+	private static Entity getEntityFromElement(Element e) throws SceneLoadingException {
+		String className = e.getAttribute("class");
+		Class<?> c = null;
+		try {
+			c = Class.forName(className);
+		} catch (ClassNotFoundException ex) {
+			throw new SceneLoadingException("found enitity of unknown class: " + className, ex);
+		}
+		try {
+			return (Entity) (c.newInstance());
+		} catch (InstantiationException | IllegalAccessException ex) {
+			throw new SceneLoadingException("instantiating entity of class: " + className + " failed", ex);
+		}
+	}
+
+	private static boolean isCollider(Entity entity) {
+		return entity instanceof Collider;
+	}
+
+	private static boolean isCollidable(Element e) {
+		return e.hasAttribute("collidable") && e.getAttribute("collidable").equals("true");
 	}
 }

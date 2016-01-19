@@ -9,7 +9,7 @@ import java.awt.event.WindowEvent;
 import java.util.Properties;
 
 import com.galas.filip.kropki.entity.Player;
-import com.galas.filip.kropki.exception.UnsupportedSceneFormatException;
+import com.galas.filip.kropki.exception.SceneLoadingException;
 
 public class GameController implements GameEventListener {
 
@@ -34,7 +34,7 @@ public class GameController implements GameEventListener {
 
 		try {
 			setStartSceneAsCurrentScene();
-		} catch (UnsupportedSceneFormatException e) {
+		} catch (SceneLoadingException e) {
 			throw new RuntimeException("cannot load the start scene", e);
 		}
 
@@ -80,7 +80,7 @@ public class GameController implements GameEventListener {
 				ParsingUtil.parseColor(config.getProperty(ConfigurationModel.PLAYER_COLOR)));
 	}
 
-	private void setStartSceneAsCurrentScene() throws UnsupportedSceneFormatException {
+	private void setStartSceneAsCurrentScene() throws SceneLoadingException {
 		String startSceneURL = config.getProperty(ConfigurationModel.START_SCENE_URL);
 		Color defaultBackgroundColor = ParsingUtil
 				.parseColor(config.getProperty(ConfigurationModel.DEFAULT_BACKROUND_COLOR));
@@ -89,7 +89,7 @@ public class GameController implements GameEventListener {
 		setSceneAsCurrent(startScene);
 	}
 
-	private Scene loadScene(String sceneURL, Color defaultBackgroundColor) throws UnsupportedSceneFormatException {
+	private Scene loadScene(String sceneURL, Color defaultBackgroundColor) throws SceneLoadingException {
 		SceneLoader sceneLoader = SceneLoaderFactory.getSceneLoader(sceneURL);
 		Scene scene = sceneLoader.getScene();
 		if (scene.getBackgroundColor() == null) {
@@ -124,10 +124,12 @@ public class GameController implements GameEventListener {
 
 	public void onGameEvent(GameEvent e) {
 		try {
+			Color defaultBackgroundColor = ParsingUtil
+					.parseColor(config.getProperty(ConfigurationModel.DEFAULT_BACKROUND_COLOR));
+
 			if (e.getEventType() == GameEvent.EventType.LINK) {
 				if (e.getLinkURL() != null) {
-					SceneLoader sceneLoader = SceneLoaderFactory.getSceneLoader(e.getLinkURL());
-					setSceneAsCurrent(sceneLoader.getScene());
+					setSceneAsCurrent(loadScene(e.getLinkURL(), defaultBackgroundColor));
 					pause();
 					resume();
 				} else {
@@ -136,13 +138,11 @@ public class GameController implements GameEventListener {
 				}
 			} else if (e.getEventType() == GameEvent.EventType.LOST) {
 				String gameOverSceneURL = config.getProperty(ConfigurationModel.GAME_OVER_SCENE_URL);
-				Scene gameOverScene = SceneLoaderFactory.getSceneLoader(gameOverSceneURL).getScene();
-
-				setSceneAsCurrent(gameOverScene);
+				setSceneAsCurrent(loadScene(gameOverSceneURL, defaultBackgroundColor));
 				pause();
 				resume();
 			}
-		} catch (UnsupportedSceneFormatException ex) {
+		} catch (SceneLoadingException ex) {
 			throw new RuntimeException(ex);
 		}
 	}
