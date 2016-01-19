@@ -63,21 +63,32 @@ public class UpdateThread extends Thread {
 
 		setRunning(true);
 
+		long now = System.nanoTime();
+		long lastUpdateTime = now;
+		int updateDelayMili = Integer.valueOf(config.getProperty(ConfigurationModel.UPDATE_DELAY));
+		int updateGranularityMili = Integer.valueOf(config.getProperty(ConfigurationModel.UPDATE_GRANULARITY));
+		final int NANO_PER_MILI = 1_000_000;
+
 		while (isRunning()) {
 
-			updateEntities();
+			now = System.nanoTime();
 
-			drawGameScreen(g, gameScreen, backgroundColor);
+			if (now - lastUpdateTime >= updateDelayMili * NANO_PER_MILI) {
+				lastUpdateTime = System.nanoTime();
 
-			frame.repaint();
+				updateEntities();
 
-			calculateScroll(player, nonScrollingAreaWidth, nonScrollingAreaHeight);
+				drawGameScreen(g, gameScreen, backgroundColor);
 
-			// sleep... zzzzz
-			try {
-				sleep(Integer.valueOf(config.getProperty(ConfigurationModel.UPDATE_DELAY)));
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				frame.repaint();
+
+				calculateScroll(player, nonScrollingAreaWidth, nonScrollingAreaHeight);
+
+				try {
+					sleep(updateGranularityMili);
+				} catch (InterruptedException e) {
+					throw new RuntimeException("update sleep interrupted", e);
+				}
 			}
 		}
 	}
