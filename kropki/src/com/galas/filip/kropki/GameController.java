@@ -81,16 +81,16 @@ public class GameController implements GameEventListener {
 	}
 
 	private void setStartSceneAsCurrentScene() throws SceneLoadingException {
-		String startSceneURL = config.getProperty(ConfigurationModel.START_SCENE_URL);
+		String startSceneName = config.getProperty(ConfigurationModel.START_SCENE_NAME);
 		Color defaultBackgroundColor = ParsingUtil
 				.parseColor(config.getProperty(ConfigurationModel.DEFAULT_BACKROUND_COLOR));
 
-		Scene startScene = loadScene(startSceneURL, defaultBackgroundColor);
+		Scene startScene = loadScene(startSceneName, defaultBackgroundColor);
 		setSceneAsCurrent(startScene);
 	}
 
-	private Scene loadScene(String sceneURL, Color defaultBackgroundColor) throws SceneLoadingException {
-		SceneLoader sceneLoader = SceneLoaderFactory.getSceneLoader(sceneURL);
+	private Scene loadScene(String sceneName, Color defaultBackgroundColor) throws SceneLoadingException {
+		SceneLoader sceneLoader = SceneLoaderFactory.getSceneLoader(sceneName);
 		Scene scene = sceneLoader.getScene();
 		if (scene.getBackgroundColor() == null) {
 			scene.setBackgroundColor(defaultBackgroundColor);
@@ -128,8 +128,8 @@ public class GameController implements GameEventListener {
 					.parseColor(config.getProperty(ConfigurationModel.DEFAULT_BACKROUND_COLOR));
 
 			if (e.getEventType() == GameEvent.EventType.LINK) {
-				if (e.getLinkURL() != null) {
-					setSceneAsCurrent(loadScene(e.getLinkURL(), defaultBackgroundColor));
+				if (e.getTargetSceneName() != null) {
+					setSceneAsCurrent(loadScene(e.getTargetSceneName(), defaultBackgroundColor));
 					pause();
 					resume();
 				} else {
@@ -137,8 +137,8 @@ public class GameController implements GameEventListener {
 					System.exit(0);
 				}
 			} else if (e.getEventType() == GameEvent.EventType.LOST) {
-				String gameOverSceneURL = config.getProperty(ConfigurationModel.GAME_OVER_SCENE_URL);
-				setSceneAsCurrent(loadScene(gameOverSceneURL, defaultBackgroundColor));
+				String gameOverSceneName = config.getProperty(ConfigurationModel.GAME_OVER_SCENE_NAME);
+				setSceneAsCurrent(loadScene(gameOverSceneName, defaultBackgroundColor));
 				pause();
 				resume();
 			}

@@ -16,7 +16,7 @@ public final class ConfigurationModel {
 	public static final String PLAYER_COLOR = "player.color";
 	public static final String PLAYER_SPEED = "player.speed";
 	public static final String PLAYER_DOT_SIZE = "player.dotSize";
-	public static final String START_SCENE_URL = "startScene.url";
-	public static final String GAME_OVER_SCENE_URL = "gameOverScene.url";
+	public static final String START_SCENE_NAME = "startScene.name";
+	public static final String GAME_OVER_SCENE_NAME = "gameOverScene.name";
 
 }

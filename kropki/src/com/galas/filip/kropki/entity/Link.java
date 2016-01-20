@@ -8,40 +8,30 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import com.galas.filip.kropki.GameEvent;
-import com.galas.filip.kropki.XMLLoadable;
 import com.galas.filip.kropki.ParsingUtil;
+import com.galas.filip.kropki.XMLLoadable;
 
 public class Link extends Entity implements XMLLoadable {
 
-	private String sceneURL;
-	private Runnable action;
+	private String targetSceneName;
 	private int activationOffset;
 
 	public Link() {
 		super();
 	}
 
-	public Link(Point position, String sceneURL, Runnable action, int activationOffset) {
+	public Link(Point position, String targetSceneName, int activationOffset) {
 		super(position);
-		this.sceneURL = sceneURL;
-		this.action = action;
+		this.targetSceneName = targetSceneName;
 		this.activationOffset = activationOffset;
 	}
 
-	public String getSceneURL() {
-		return sceneURL;
+	public String getTargetSceneName() {
+		return targetSceneName;
 	}
 
-	public Runnable getAction() {
-		return action;
-	}
-
-	public void setSceneURL(String sceneURL) {
-		this.sceneURL = sceneURL;
-	}
-
-	public void setAction(Runnable action) {
-		this.action = action;
+	public void setTargetSceneName(String sceneName) {
+		this.targetSceneName = sceneName;
 	}
 
 	public int getActivationOffset() {
@@ -56,7 +46,7 @@ public class Link extends Entity implements XMLLoadable {
 		Player player = Player.getInstance();
 		int dist = (int) Math.round(player.getPosition().distance(this.getPosition()));
 		if (dist <= activationOffset) {
-			return GameEvent.newLinkGameEvent(sceneURL);
+			return GameEvent.newLinkGameEvent(targetSceneName);
 		} else {
 			return null;
 		}
@@ -66,7 +56,6 @@ public class Link extends Entity implements XMLLoadable {
 
 	}
 
-	// setting the link action from an xml file is not yet implemented
 	public void setupFromXMLElement(Element element) {
 		String str = null;
 		NodeList nodeList = null;
@@ -80,16 +69,16 @@ public class Link extends Entity implements XMLLoadable {
 		str = str.trim();
 		this.setPosition(ParsingUtil.parsePoint(str));
 
-		nodeList = element.getElementsByTagName("sceneurl");
+		nodeList = element.getElementsByTagName("scenename");
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
 				str = nodeList.item(i).getTextContent();
 			}
 		}
 		str = str.trim();
-		this.setSceneURL(str);
+		this.setTargetSceneName(str);
 
-		nodeList = element.getElementsByTagName("offset");
+		nodeList = element.getElementsByTagName("activationoffset");
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
 				str = nodeList.item(i).getTextContent();
@@ -99,7 +88,7 @@ public class Link extends Entity implements XMLLoadable {
 		this.setActivationOffset(Integer.parseInt(str));
 
 		if (element.hasAttribute("exit") && element.getAttribute("exit").equals("true")) {
-			this.setSceneURL(null);
+			this.setTargetSceneName(null);
 		}
 	}
 

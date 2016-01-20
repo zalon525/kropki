@@ -1,7 +1,5 @@
 package com.galas.filip.kropki;
 
-import java.io.File;
-
 import com.galas.filip.kropki.exception.UnsupportedSceneFormatException;
 
 public class SceneLoaderFactory {
@@ -10,10 +8,10 @@ public class SceneLoaderFactory {
 
 	}
 
-	public static SceneLoader getSceneLoader(String sceneURL) throws UnsupportedSceneFormatException {
+	public static SceneLoader getSceneLoader(String sceneName) throws UnsupportedSceneFormatException {
 
-		if (sceneURL.endsWith(".xml")) {
-			return new XMLSceneLoader(new File(sceneURL));
+		if (sceneName.endsWith(".xml")) {
+			return new XMLSceneLoader(SceneLoaderFactory.class.getResourceAsStream(sceneName));
 		} else {
 			throw new UnsupportedSceneFormatException();
 		}

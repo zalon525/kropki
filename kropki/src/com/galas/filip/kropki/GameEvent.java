@@ -7,10 +7,10 @@ public class GameEvent {
 	};
 
 	private EventType type;
-	private String linkURL;
+	private String targetSceneName;
 
-	private GameEvent(EventType type, String linkURL) {
-		this.linkURL = linkURL;
+	private GameEvent(EventType type, String targetSceneName) {
+		this.targetSceneName = targetSceneName;
 		this.type = type;
 	}
 	
@@ -18,12 +18,12 @@ public class GameEvent {
 		return new GameEvent(EventType.LOST, null);
 	}
 	
-	public static GameEvent newLinkGameEvent(String linkURL) {
-		return new GameEvent(EventType.LINK, linkURL);
+	public static GameEvent newLinkGameEvent(String targetSceneName) {
+		return new GameEvent(EventType.LINK, targetSceneName);
 	}
 
-	public String getLinkURL() {
-		return linkURL;
+	public String getTargetSceneName() {
+		return targetSceneName;
 	}
 
 	public EventType getEventType() {

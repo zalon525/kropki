@@ -1,5 +1,5 @@
 *.properties
-*.xml
 .*
 !.gitignore
 /bin/
+/scenes/

@@ -3,7 +3,10 @@ package com.galas.filip.kropki;
 import java.awt.Color;
 import java.awt.Point;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
@@ -25,11 +28,15 @@ import com.galas.filip.kropki.exception.SceneLoadingException;
 
 public class XMLSceneLoader implements SceneLoader {
 
-	private File xmlSceneFile;
+	private InputStream sceneInputStream;
 	private Scene cachedScene = null;
 
-	public XMLSceneLoader(File xmlSceneFile) {
-		this.xmlSceneFile = xmlSceneFile;
+	public XMLSceneLoader(File sceneFile) throws FileNotFoundException {
+		this.sceneInputStream = new FileInputStream(sceneFile);
+	}
+
+	public XMLSceneLoader(InputStream sceneImputStream) {
+		this.sceneInputStream = sceneImputStream;
 	}
 
 	public Scene getScene() throws SceneLoadingException {
@@ -43,7 +50,7 @@ public class XMLSceneLoader implements SceneLoader {
 		Point start = new Point();
 		Color backgroundColor = null;
 
-		Document doc = getSceneDocument(xmlSceneFile);
+		Document doc = getSceneDocument(sceneInputStream);
 
 		start = ParsingUtil.parsePoint(doc.getDocumentElement().getAttribute("start"));
 
@@ -89,7 +96,7 @@ public class XMLSceneLoader implements SceneLoader {
 		return cachedScene = new Scene(layers, start, backgroundColor);
 	}
 
-	private static Document getSceneDocument(File sceneFile) throws SceneLoadingException {
+	private static Document getSceneDocument(InputStream sceneInputStream) throws SceneLoadingException {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder = null;
 		try {
@@ -99,7 +106,7 @@ public class XMLSceneLoader implements SceneLoader {
 		}
 		Document doc = null;
 		try {
-			doc = dBuilder.parse(sceneFile);
+			doc = dBuilder.parse(sceneInputStream);
 		} catch (SAXException | IOException e) {
 			throw new SceneLoadingException("parsing scene file failed", e);
 		}
