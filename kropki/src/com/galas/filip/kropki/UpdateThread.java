@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import com.galas.filip.kropki.entity.Entity;
 import com.galas.filip.kropki.entity.Player;
+import com.galas.filip.kropki.loading.ParsingUtil;
 
 public class UpdateThread extends Thread {
 

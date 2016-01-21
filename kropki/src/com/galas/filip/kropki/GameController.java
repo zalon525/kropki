@@ -10,6 +10,9 @@ import java.util.Properties;
 
 import com.galas.filip.kropki.entity.Player;
 import com.galas.filip.kropki.exception.SceneLoadingException;
+import com.galas.filip.kropki.loading.ParsingUtil;
+import com.galas.filip.kropki.loading.SceneLoader;
+import com.galas.filip.kropki.loading.SceneLoaderFactory;
 
 public class GameController implements GameEventListener {
 

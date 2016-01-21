@@ -2,23 +2,29 @@ package com.galas.filip.kropki.entity;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.galas.filip.kropki.GameEvent;
-import com.galas.filip.kropki.ParsingUtil;
-import com.galas.filip.kropki.XMLLoadable;
 import com.galas.filip.kropki.entity.ai.EnemyAIStrategy;
+import com.galas.filip.kropki.entity.ai.SimpleEnemyAIStrategy;
+import com.galas.filip.kropki.loading.EntityEntityParameter;
+import com.galas.filip.kropki.loading.EntityParameter;
+import com.galas.filip.kropki.loading.EntityParameterMap;
+import com.galas.filip.kropki.loading.IntegerEntityParameter;
+import com.galas.filip.kropki.loading.Loadable;
+import com.galas.filip.kropki.loading.PointEntityParameter;
 
-public class Enemy extends Dot implements XMLLoadable {
+public class Enemy extends Dot implements Loadable {
 
 	private EnemyAIStrategy ai;
 
 	public Enemy() {
 		super();
 	}
+
+	private static final EntityParameter<?>[] PARAMETERS = { new PointEntityParameter("position", new Point()),
+			new IntegerEntityParameter("size", 6), new EntityEntityParameter("ai", new SimpleEnemyAIStrategy()) };
 
 	public Enemy(Point position, int dotSize, EnemyAIStrategy ai) {
 		super(position, dotSize);
@@ -51,52 +57,15 @@ public class Enemy extends Dot implements XMLLoadable {
 		ai.setRangeVisibility(visible);
 	}
 
-	public void setupFromXMLElement(Element element) {
-		String str = null;
-		NodeList nodeList = null;
-
-		nodeList = element.getElementsByTagName("position");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setPosition(ParsingUtil.parsePoint(str));
-
-		nodeList = element.getElementsByTagName("dotradius");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setDotRadius(Integer.parseInt(str));
-
-		EnemyAIStrategy ai = null;
-		nodeList = element.getElementsByTagName("ai");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				Element e = (Element) (nodeList.item(i));
-				String className = e.getAttribute("class");
-				try {
-					ai = (EnemyAIStrategy) (Class.forName(className).newInstance());
-				} catch (InstantiationException ex) {
-					ex.printStackTrace();
-				} catch (IllegalAccessException ex) {
-					ex.printStackTrace();
-				} catch (ClassNotFoundException ex) {
-					ex.printStackTrace();
-				}
-				ai.setupFromXMLElement(e);
-			}
-		}
-		this.setAi(ai);
-
-		setRangeVisibility(false);
-		if (element.getAttribute("showrange") != null && element.getAttribute("showrange").equals("true")) {
-			setRangeVisibility(true);
-		}
+	@Override
+	public void setupFromParameters(EntityParameterMap parameters) {
+		setPosition(parameters.getParameterValue("position"));
+		setDotRadius(parameters.getParameterValue("size"));
+		setAi(parameters.getParameterValue("ai"));
 	}
 
+	@Override
+	public List<EntityParameter<?>> getEntityParameters() {
+		return Arrays.asList(PARAMETERS);
+	}
 }

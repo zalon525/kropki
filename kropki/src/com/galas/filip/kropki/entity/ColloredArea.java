@@ -3,22 +3,28 @@ package com.galas.filip.kropki.entity;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.galas.filip.kropki.GameEvent;
-import com.galas.filip.kropki.XMLLoadable;
-import com.galas.filip.kropki.ParsingUtil;
+import com.galas.filip.kropki.loading.ColorEntityParameter;
+import com.galas.filip.kropki.loading.EntityParameter;
+import com.galas.filip.kropki.loading.EntityParameterMap;
+import com.galas.filip.kropki.loading.IntegerEntityParameter;
+import com.galas.filip.kropki.loading.Loadable;
+import com.galas.filip.kropki.loading.PointEntityParameter;
 
-public class ColloredArea extends Area implements XMLLoadable {
+public class ColloredArea extends Area implements Loadable {
 
 	private Color color;
 
 	public ColloredArea() {
 		super();
 	}
+
+	private static final EntityParameter<?>[] PARAMETERS = { new PointEntityParameter("position", new Point()),
+			new IntegerEntityParameter("width", 0), new IntegerEntityParameter("height", 0),
+			new ColorEntityParameter("color", new Color(100, 100, 100)) };
 
 	public ColloredArea(Point position, int width, int height, Color color) {
 		super(position, width, height);
@@ -42,44 +48,16 @@ public class ColloredArea extends Area implements XMLLoadable {
 		g.fillRect(this.getX(), this.getY(), this.getWidth(), this.getHeight());
 	}
 
-	public void setupFromXMLElement(Element element) {
-		String str = null;
-		NodeList nodeList = null;
+	@Override
+	public void setupFromParameters(EntityParameterMap parameters) {
+		setPosition(parameters.getParameterValue("position"));
+		setWidth(parameters.getParameterValue("width"));
+		setHeight(parameters.getParameterValue("height"));
+		setColor(parameters.getParameterValue("color"));
+	}
 
-		nodeList = element.getElementsByTagName("position");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setPosition(ParsingUtil.parsePoint(str));
-
-		nodeList = element.getElementsByTagName("width");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setWidth(Integer.parseInt(str));
-
-		nodeList = element.getElementsByTagName("height");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setHeight(Integer.parseInt(str));
-
-		nodeList = element.getElementsByTagName("color");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setColor(ParsingUtil.parseColor(str));
+	@Override
+	public List<EntityParameter<?>> getEntityParameters() {
+		return Arrays.asList(PARAMETERS);
 	}
 }

@@ -3,9 +3,9 @@ package com.galas.filip.kropki.entity;
 import java.awt.Point;
 import java.util.Collection;
 
-import com.galas.filip.kropki.XMLLoadable;
+import com.galas.filip.kropki.loading.Loadable;
 
-public abstract class Collider extends Area implements XMLLoadable {
+public abstract class Collider extends Area implements Loadable {
 
 	private Collection<Entity> collidableEntities;
 

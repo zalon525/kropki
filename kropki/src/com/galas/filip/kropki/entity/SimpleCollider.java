@@ -2,16 +2,17 @@ package com.galas.filip.kropki.entity;
 
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import com.galas.filip.kropki.GameEvent;
-import com.galas.filip.kropki.ParsingUtil;
+import com.galas.filip.kropki.loading.EntityParameter;
+import com.galas.filip.kropki.loading.EntityParameterMap;
+import com.galas.filip.kropki.loading.IntegerEntityParameter;
+import com.galas.filip.kropki.loading.PointEntityParameter;
 
 /* 
  * This is a class, which implements simple and inaccurate collision
@@ -24,6 +25,9 @@ public class SimpleCollider extends Collider {
 	public SimpleCollider() {
 		super();
 	}
+
+	private static final EntityParameter<?>[] PARAMETERS = { new PointEntityParameter("position", new Point()),
+			new IntegerEntityParameter("width", 0), new IntegerEntityParameter("height", 0) };
 
 	/*
 	 * Warning! Assuming that when this constructor is called all collidable
@@ -65,38 +69,16 @@ public class SimpleCollider extends Collider {
 
 	}
 
-	// this setup does not set the collidableEntities list; it is done by the
-	// XMLSceneLoader itself though
-	public void setupFromXMLElement(Element element) {
-		String str = null;
-		NodeList nodeList = null;
+	@Override
+	public void setupFromParameters(EntityParameterMap parameters) {
+		setPosition(parameters.getParameterValue("position"));
+		setWidth(parameters.getParameterValue("width"));
+		setHeight(parameters.getParameterValue("height"));
+	}
 
-		nodeList = element.getElementsByTagName("position");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setPosition(ParsingUtil.parsePoint(str));
-
-		nodeList = element.getElementsByTagName("width");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setWidth(Integer.parseInt(str));
-
-		nodeList = element.getElementsByTagName("height");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setHeight(Integer.parseInt(str));
+	@Override
+	public List<EntityParameter<?>> getEntityParameters() {
+		return Arrays.asList(PARAMETERS);
 	}
 
 }

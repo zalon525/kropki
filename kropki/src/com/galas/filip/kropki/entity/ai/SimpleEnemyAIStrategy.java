@@ -2,13 +2,15 @@ package com.galas.filip.kropki.entity.ai;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.galas.filip.kropki.entity.Enemy;
 import com.galas.filip.kropki.entity.Player;
+import com.galas.filip.kropki.loading.BooleanEntityParameter;
+import com.galas.filip.kropki.loading.EntityParameter;
+import com.galas.filip.kropki.loading.EntityParameterMap;
+import com.galas.filip.kropki.loading.IntegerEntityParameter;
 
 public class SimpleEnemyAIStrategy implements EnemyAIStrategy {
 
@@ -28,6 +30,10 @@ public class SimpleEnemyAIStrategy implements EnemyAIStrategy {
 
 	}
 
+	private static final EntityParameter<?>[] PARAMETERS = { new IntegerEntityParameter("watchdist", 0),
+			new IntegerEntityParameter("attackdist", 0), new IntegerEntityParameter("speed", 1),
+			new BooleanEntityParameter("rangevisible", false) };
+
 	public SimpleEnemyAIStrategy(int watchDist, int attackDist, int speed) {
 		this.watchDist = watchDist;
 		this.attackDist = attackDist;
@@ -38,8 +44,7 @@ public class SimpleEnemyAIStrategy implements EnemyAIStrategy {
 		Player player = Player.getInstance();
 
 		// set state
-		int distance = (int) Math.round(player.getPosition().distance(
-				e.getPosition()));
+		int distance = (int) Math.round(player.getPosition().distance(e.getPosition()));
 		if (distance > watchDist) {
 			state = State.NORMAL;
 		} else if (distance <= watchDist && distance > attackDist) {
@@ -120,36 +125,17 @@ public class SimpleEnemyAIStrategy implements EnemyAIStrategy {
 		return rangeVisibility;
 	}
 
-	public void setupFromXMLElement(Element element) {
-		String str = null;
-		NodeList nodeList = null;
-		
-		nodeList = element.getElementsByTagName("watchdist");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setWatchDist(Integer.parseInt(str));
-		
-		nodeList = element.getElementsByTagName("attackdist");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setAttackDist(Integer.parseInt(str));
-		
-		nodeList = element.getElementsByTagName("speed");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setSpeed(Integer.parseInt(str));
+	@Override
+	public void setupFromParameters(EntityParameterMap parameters) {
+		setWatchDist(parameters.getParameterValue("watchdist"));
+		setAttackDist(parameters.getParameterValue("attackdist"));
+		setSpeed(parameters.getParameterValue("speed"));
+		setRangeVisibility(parameters.getParameterValue("rangevisible"));
+	}
+
+	@Override
+	public List<EntityParameter<?>> getEntityParameters() {
+		return Arrays.asList(PARAMETERS);
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.galas.filip.kropki;
+package com.galas.filip.kropki.loading;
 
 import com.galas.filip.kropki.exception.UnsupportedSceneFormatException;
 

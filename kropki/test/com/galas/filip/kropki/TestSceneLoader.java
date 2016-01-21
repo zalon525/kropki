@@ -15,6 +15,7 @@ import com.galas.filip.kropki.entity.SimpleCollider;
 import com.galas.filip.kropki.entity.Text;
 import com.galas.filip.kropki.entity.ai.PatrolEnemyAIStrategy;
 import com.galas.filip.kropki.entity.ai.SimpleEnemyAIStrategy;
+import com.galas.filip.kropki.loading.SceneLoader;
 
 public class TestSceneLoader implements SceneLoader {
 

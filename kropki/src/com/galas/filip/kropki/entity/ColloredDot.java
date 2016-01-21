@@ -3,22 +3,27 @@ package com.galas.filip.kropki.entity;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.galas.filip.kropki.GameEvent;
-import com.galas.filip.kropki.XMLLoadable;
-import com.galas.filip.kropki.ParsingUtil;
+import com.galas.filip.kropki.loading.ColorEntityParameter;
+import com.galas.filip.kropki.loading.EntityParameter;
+import com.galas.filip.kropki.loading.EntityParameterMap;
+import com.galas.filip.kropki.loading.IntegerEntityParameter;
+import com.galas.filip.kropki.loading.Loadable;
+import com.galas.filip.kropki.loading.PointEntityParameter;
 
-public class ColloredDot extends Dot implements XMLLoadable {
+public class ColloredDot extends Dot implements Loadable {
 
 	private Color color;
 
 	public ColloredDot() {
 		super();
 	}
+
+	private static final EntityParameter<?>[] PARAMETERS = { new PointEntityParameter("position", new Point()),
+			new IntegerEntityParameter("size", 0), new ColorEntityParameter("color", new Color(100, 100, 100)) };
 
 	public ColloredDot(Point position, int dotRadius, Color color) {
 		super(position, dotRadius);
@@ -46,36 +51,16 @@ public class ColloredDot extends Dot implements XMLLoadable {
 		g.fillOval(x, y, 2 * getDotRadius(), 2 * getDotRadius());
 	}
 
-	public void setupFromXMLElement(Element element) {
-		String str = null;
-		NodeList nodeList = null;
+	@Override
+	public void setupFromParameters(EntityParameterMap parameters) {
+		setPosition(parameters.getParameterValue("position"));
+		setDotRadius(parameters.getParameterValue("size"));
+		setColor(parameters.getParameterValue("color"));
+	}
 
-		nodeList = element.getElementsByTagName("position");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setPosition(ParsingUtil.parsePoint(str));
-
-		nodeList = element.getElementsByTagName("dotradius");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setDotRadius(Integer.parseInt(str));
-
-		nodeList = element.getElementsByTagName("color");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setColor(ParsingUtil.parseColor(str));
+	@Override
+	public List<EntityParameter<?>> getEntityParameters() {
+		return Arrays.asList(PARAMETERS);
 	}
 
 }

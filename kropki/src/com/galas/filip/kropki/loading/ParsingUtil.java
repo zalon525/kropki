@@ -1,4 +1,4 @@
-package com.galas.filip.kropki;
+package com.galas.filip.kropki.loading;
 
 import java.awt.Color;
 import java.awt.Point;

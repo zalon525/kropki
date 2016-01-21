@@ -1,4 +1,4 @@
-package com.galas.filip.kropki;
+package com.galas.filip.kropki.loading;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -22,6 +22,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.galas.filip.kropki.Scene;
 import com.galas.filip.kropki.entity.Collider;
 import com.galas.filip.kropki.entity.Entity;
 import com.galas.filip.kropki.exception.SceneLoadingException;
@@ -65,30 +66,25 @@ public class XMLSceneLoader implements SceneLoader {
 
 			if (n.getNodeType() == Node.ELEMENT_NODE) {
 				Element e = (Element) n;
-				Entity entity = getEntityFromElement(e);
+				Loadable entity = (new XMLEntityParser(e)).getEntity();
 
-				if (entity instanceof XMLLoadable) {
-					XMLLoadable xmlLoadableEntity = (XMLLoadable) entity;
-					xmlLoadableEntity.setupFromXMLElement(e);
+				if (isCollider(entity)) {
+					Collider collider = (Collider) entity;
+					collider.setCollidableEntities(collidableEntities);
+				}
 
-					if (isCollider(entity)) {
-						Collider collider = (Collider) entity;
-						collider.setCollidableEntities(collidableEntities);
-					}
+				if (isCollidable(e)) {
+					collidableEntities.add((Entity) entity);
+				}
 
-					if (isCollidable(e)) {
-						collidableEntities.add(entity);
-					}
+				int layer = Integer.valueOf(e.getAttribute("layer"));
 
-					int layer = Integer.valueOf(e.getAttribute("layer"));
-
-					if (layers.get(layer) == null) {
-						List<Entity> layerList = new ArrayList<Entity>();
-						layerList.add(entity);
-						layers.put(layer, layerList);
-					} else {
-						layers.get(layer).add(entity);
-					}
+				if (layers.get(layer) == null) {
+					List<Entity> layerList = new ArrayList<Entity>();
+					layerList.add((Entity) entity);
+					layers.put(layer, layerList);
+				} else {
+					layers.get(layer).add((Entity) entity);
 				}
 			}
 		}
@@ -115,22 +111,7 @@ public class XMLSceneLoader implements SceneLoader {
 		return doc;
 	}
 
-	private static Entity getEntityFromElement(Element e) throws SceneLoadingException {
-		String className = e.getAttribute("class");
-		Class<?> c = null;
-		try {
-			c = Class.forName(className);
-		} catch (ClassNotFoundException ex) {
-			throw new SceneLoadingException("found enitity of unknown class: " + className, ex);
-		}
-		try {
-			return (Entity) (c.newInstance());
-		} catch (InstantiationException | IllegalAccessException ex) {
-			throw new SceneLoadingException("instantiating entity of class: " + className + " failed", ex);
-		}
-	}
-
-	private static boolean isCollider(Entity entity) {
+	private static boolean isCollider(Loadable entity) {
 		return entity instanceof Collider;
 	}
 

@@ -2,15 +2,16 @@ package com.galas.filip.kropki.entity;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 import com.galas.filip.kropki.GameEvent;
-import com.galas.filip.kropki.ParsingUtil;
+import com.galas.filip.kropki.loading.ColorEntityParameter;
+import com.galas.filip.kropki.loading.EntityParameter;
+import com.galas.filip.kropki.loading.EntityParameterMap;
+import com.galas.filip.kropki.loading.IntegerEntityParameter;
+import com.galas.filip.kropki.loading.PointEntityParameter;
+import com.galas.filip.kropki.loading.PointListEntityParameter;
 
 public class AnimatedColloredDot extends ColloredDot {
 
@@ -22,8 +23,11 @@ public class AnimatedColloredDot extends ColloredDot {
 		super();
 	}
 
-	public AnimatedColloredDot(Point position, int dotRadius, Color color,
-			List<Point> rout, int speed) {
+	private static final EntityParameter<?>[] PARAMETERS = { new PointEntityParameter("position", new Point()),
+			new IntegerEntityParameter("size", 0), new ColorEntityParameter("color", new Color(100, 100, 100)),
+			new PointListEntityParameter("rout"), new IntegerEntityParameter("speed", 1) };
+
+	public AnimatedColloredDot(Point position, int dotRadius, Color color, List<Point> rout, int speed) {
 		super(position, dotRadius, color);
 		this.rout = rout;
 		this.speed = speed;
@@ -50,41 +54,22 @@ public class AnimatedColloredDot extends ColloredDot {
 		if (getPosition().equals(rout.get(routPoint))) {
 			routPoint = (routPoint + 1) % rout.size();
 		}
-		
+
 		return null;
 	}
 
-	public void setupFromXMLElement(Element element) {
-		String str = null;
-		NodeList nodeList = null;
+	@Override
+	public void setupFromParameters(EntityParameterMap parameters) {
+		setPosition(parameters.getParameterValue("position"));
+		setDotRadius(parameters.getParameterValue("size"));
+		setColor(parameters.getParameterValue("color"));
+		setRout(parameters.getParameterValue("rout"));
+		setSpeed(parameters.getParameterValue("speed"));
+	}
 
-		List<Point> rout = new ArrayList<Point>();
-		nodeList = element.getElementsByTagName("rout");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				Element e = (Element) nodeList.item(i);
-				NodeList points = e.getElementsByTagName("point");
-				for (int j = 0; j < points.getLength(); j++) {
-					if (points.item(j).getNodeType() == Node.ELEMENT_NODE) {
-						str = points.item(j).getTextContent();
-						Point p = ParsingUtil.parsePoint(str);
-						rout.add(p);
-					}
-				}
-			}
-		}
-		this.setRout(rout);
-
-		nodeList = element.getElementsByTagName("speed");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setSpeed(Integer.parseInt(str));
-
-		super.setupFromXMLElement(element);
+	@Override
+	public List<EntityParameter<?>> getEntityParameters() {
+		return Arrays.asList(PARAMETERS);
 	}
 
 }

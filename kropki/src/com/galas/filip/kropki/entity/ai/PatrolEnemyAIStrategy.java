@@ -3,16 +3,16 @@ package com.galas.filip.kropki.entity.ai;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Point;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
-import com.galas.filip.kropki.ParsingUtil;
 import com.galas.filip.kropki.entity.Enemy;
 import com.galas.filip.kropki.entity.Player;
+import com.galas.filip.kropki.loading.BooleanEntityParameter;
+import com.galas.filip.kropki.loading.EntityParameter;
+import com.galas.filip.kropki.loading.EntityParameterMap;
+import com.galas.filip.kropki.loading.IntegerEntityParameter;
+import com.galas.filip.kropki.loading.PointListEntityParameter;
 
 public class PatrolEnemyAIStrategy implements EnemyAIStrategy {
 
@@ -34,8 +34,11 @@ public class PatrolEnemyAIStrategy implements EnemyAIStrategy {
 
 	}
 
-	public PatrolEnemyAIStrategy(List<Point> rout, int attackDist,
-			int patrolSpeed, int attackSpeed) {
+	private static final EntityParameter<?>[] PARAMETERS = { new PointListEntityParameter("rout"),
+			new IntegerEntityParameter("attackdist", 0), new IntegerEntityParameter("patrolspeed", 1),
+			new IntegerEntityParameter("attackspeed", 1), new BooleanEntityParameter("rangevisible", false) };
+
+	public PatrolEnemyAIStrategy(List<Point> rout, int attackDist, int patrolSpeed, int attackSpeed) {
 		this.rout = rout;
 		this.attackDist = attackDist;
 		this.patrolSpeed = patrolSpeed;
@@ -47,8 +50,7 @@ public class PatrolEnemyAIStrategy implements EnemyAIStrategy {
 		Player player = Player.getInstance();
 
 		// set state
-		int distance = (int) Math.round(player.getPosition().distance(
-				e.getPosition()));
+		int distance = (int) Math.round(player.getPosition().distance(e.getPosition()));
 		if (distance <= attackDist) {
 			state = State.ATTACKING;
 		} else {
@@ -135,53 +137,17 @@ public class PatrolEnemyAIStrategy implements EnemyAIStrategy {
 		return rangeVisibility;
 	}
 
-	public void setupFromXMLElement(Element element) {
-		String str = null;
-		NodeList nodeList = null;
-
-		List<Point> rout = new ArrayList<Point>();
-		nodeList = element.getElementsByTagName("rout");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				Element e = (Element) nodeList.item(i);
-				NodeList points = e.getElementsByTagName("point");
-				for (int j = 0; j < points.getLength(); j++) {
-					if (points.item(j).getNodeType() == Node.ELEMENT_NODE) {
-						str = points.item(j).getTextContent();
-						Point p = ParsingUtil.parsePoint(str);
-						rout.add(p);
-					}
-				}
-			}
-		}
-		this.setRout(rout);
-
-		nodeList = element.getElementsByTagName("attackdist");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setAttackDist(Integer.parseInt(str));
-
-		nodeList = element.getElementsByTagName("patrolspeed");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setPatrolSpeed(Integer.parseInt(str));
-
-		nodeList = element.getElementsByTagName("attackspeed");
-		for (int i = 0; i < nodeList.getLength(); i++) {
-			if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE) {
-				str = nodeList.item(i).getTextContent();
-			}
-		}
-		str = str.trim();
-		this.setAttackSpeed(Integer.parseInt(str));
+	@Override
+	public void setupFromParameters(EntityParameterMap parameters) {
+		setRout(parameters.getParameterValue("rout"));
+		setAttackDist(parameters.getParameterValue("attackdist"));
+		setPatrolSpeed(parameters.getParameterValue("patrolspeed"));
+		setAttackSpeed(parameters.getParameterValue("attackspeed"));
+		setRangeVisibility(parameters.getParameterValue("rangevisible"));
 	}
 
+	@Override
+	public List<EntityParameter<?>> getEntityParameters() {
+		return Arrays.asList(PARAMETERS);
+	}
 }
