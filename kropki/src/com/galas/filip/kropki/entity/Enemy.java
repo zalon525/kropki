@@ -42,7 +42,9 @@ public class Enemy extends Dot implements Loadable {
 	public GameEvent update() {
 		ai.update(this);
 		Player player = Player.getInstance();
-		if (player.getPosition().equals(this.getPosition())) {
+		int dist = (int) Math.round(player.getPosition().distance(getPosition()));
+
+		if (dist < getDotRadius()) {
 			return GameEvent.newLostGameEvent();
 		} else {
 			return null;
