@@ -20,7 +20,7 @@ import com.galas.filip.kropki.loading.PointEntityParameter;
 
 public class SimpleCollider extends Collider {
 
-	private Map<Entity, Point> prevNonCollidingPositions = new HashMap<Entity, Point>();
+	private Map<Entity, Point> prevNonCollidingPositions = new HashMap<>();
 
 	public SimpleCollider() {
 		super();
@@ -36,10 +36,28 @@ public class SimpleCollider extends Collider {
 
 	public SimpleCollider(Point position, int width, int height, Collection<Entity> collidableEntities) {
 		super(position, width, height, collidableEntities);
+	}
 
+	@Override
+	public void setCollidableEntities(Collection<Entity> collidableEntities) {
+		super.setCollidableEntities(collidableEntities);
+
+		prevNonCollidingPositions = new HashMap<>();
 		for (Entity e : getCollidableEntities()) {
 			prevNonCollidingPositions.put(e, e.getPosition());
 		}
+	}
+
+	@Override
+	public void addCollidableEntity(Entity e) {
+		super.addCollidableEntity(e);
+		prevNonCollidingPositions.put(e, e.getPosition());
+	}
+
+	@Override
+	public void removeCollidableEntity(Entity e) {
+		super.removeCollidableEntity(e);
+		prevNonCollidingPositions.remove(e);
 	}
 
 	public GameEvent update() {

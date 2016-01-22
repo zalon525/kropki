@@ -14,7 +14,7 @@ public class Scene {
 
 	private SortedMap<Integer, List<Entity>> layers;
 	private Point startPosition;
-	private Color backgroundColor; // optional, can be set to null
+	private Color backgroundColor;
 
 	public Scene(SortedMap<Integer, List<Entity>> layers, Point startPosition, Color backgroundColor) {
 		this.layers = layers;
@@ -60,7 +60,7 @@ public class Scene {
 
 		if (collidable) {
 			for (Entity en : getEntities()) {
-				if (Collider.class.isInstance(en)) {
+				if (en instanceof Collider) {
 					Collider c = (Collider) en;
 					c.addCollidableEntity(e);
 				}
@@ -80,7 +80,7 @@ public class Scene {
 
 		if (collidable) {
 			for (Entity en : getEntities()) {
-				if (Collider.class.isInstance(en)) {
+				if (en instanceof Collider) {
 					Collider c = (Collider) en;
 					c.addCollidableEntity(e);
 				}

@@ -1,6 +1,7 @@
 package com.galas.filip.kropki.entity;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.galas.filip.kropki.loading.Loadable;
@@ -15,7 +16,7 @@ public abstract class Collider extends Area implements Loadable {
 
 	public Collider(Point position, int width, int height, Collection<Entity> collidableEntities) {
 		super(position, width, height);
-		this.collidableEntities = collidableEntities;
+		setCollidableEntities(collidableEntities);
 	}
 
 	public void addCollidableEntity(Entity e) {
@@ -31,6 +32,6 @@ public abstract class Collider extends Area implements Loadable {
 	}
 
 	public void setCollidableEntities(Collection<Entity> collidableEntities) {
-		this.collidableEntities = collidableEntities;
+		this.collidableEntities = new ArrayList<>(collidableEntities);
 	}
 }

@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -59,6 +60,8 @@ public class XMLSceneLoader implements SceneLoader {
 			backgroundColor = ParsingUtil.parseColor(doc.getDocumentElement().getAttribute("background"));
 		}
 
+		Collection<Collider> colliders = new ArrayList<>();
+
 		NodeList nodeList = doc.getElementsByTagName("entity");
 		for (int i = 0; i < nodeList.getLength(); i++) {
 
@@ -69,8 +72,7 @@ public class XMLSceneLoader implements SceneLoader {
 				Loadable entity = (new XMLEntityParser(e)).getEntity();
 
 				if (isCollider(entity)) {
-					Collider collider = (Collider) entity;
-					collider.setCollidableEntities(collidableEntities);
+					colliders.add((Collider) entity);
 				}
 
 				if (isCollidable(e)) {
@@ -88,6 +90,8 @@ public class XMLSceneLoader implements SceneLoader {
 				}
 			}
 		}
+
+		colliders.stream().forEach(c -> c.setCollidableEntities(collidableEntities));
 
 		return cachedScene = new Scene(layers, start, backgroundColor);
 	}
