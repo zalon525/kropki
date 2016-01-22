@@ -119,7 +119,7 @@ public class GameController implements GameEventListener {
 
 	public void resume() {
 		if (updateThread == null) {
-			updateThread = new UpdateThread(currentScene.getEntities(), frame, config);
+			updateThread = new UpdateThread(currentScene, frame, config);
 			updateThread.addGameEventListener(this);
 			updateThread.start();
 		}

@@ -11,11 +11,11 @@ import java.util.Properties;
 
 import com.galas.filip.kropki.entity.Entity;
 import com.galas.filip.kropki.entity.Player;
-import com.galas.filip.kropki.loading.ParsingUtil;
 
 public class UpdateThread extends Thread {
 
 	private List<Entity> entities;
+	private Color backgroundColor;
 	private GameFrame frame;
 	private Properties config;
 
@@ -28,9 +28,10 @@ public class UpdateThread extends Thread {
 	private int dScrollX = 0;
 	private int dScrollY = 0;
 
-	public UpdateThread(List<Entity> entities, GameFrame frame, Properties config) {
+	public UpdateThread(Scene scene, GameFrame frame, Properties config) {
 		super("UpdateThread");
-		this.entities = entities;
+		this.entities = scene.getEntities();
+		this.backgroundColor = scene.getBackgroundColor();
 		this.frame = frame;
 		this.config = config;
 	}
@@ -56,7 +57,6 @@ public class UpdateThread extends Thread {
 		Graphics2D g = gameScreen.createGraphics();
 		Player player = Player.getInstance();
 
-		Color backgroundColor = ParsingUtil.parseColor(config.getProperty(ConfigurationModel.DEFAULT_BACKROUND_COLOR));
 		int nonScrollingAreaWidth = Integer.valueOf(config.getProperty(ConfigurationModel.NON_SCROLLING_AREA_WIDTH));
 		int nonScrollingAreaHeight = Integer.valueOf(config.getProperty(ConfigurationModel.NON_SCROLLING_AREA_HEIGHT));
 
