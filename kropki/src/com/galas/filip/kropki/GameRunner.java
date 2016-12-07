@@ -20,7 +20,7 @@ public class GameRunner {
 		try {
 			config.load(new FileInputStream(configURL));
 		} catch (IOException e) {
-			throw new RuntimeException("an error during configuration loading occured", e);
+			throw new RuntimeException("an error occured during configuration loading", e);
 		}
 
 		GameController gameController = new GameController(config);
