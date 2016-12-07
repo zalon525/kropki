@@ -127,6 +127,9 @@ public class UpdateThread extends Thread {
 
 	private void updateEntities() {
 		for (Entity e : entities) {
+			if (!isRunning()) {
+				break;
+			}
 			GameEvent ge = e.update();
 			if (ge != null) {
 				for (GameEventListener gl : gameListeners) {

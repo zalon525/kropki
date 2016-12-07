@@ -1,12 +1,11 @@
 package com.galas.filip.kropki.entity;
 
 import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.util.EnumSet;
 
 import com.galas.filip.kropki.GameEvent;
-
-import java.awt.Graphics2D;
 
 public class Player extends Dot {
 
