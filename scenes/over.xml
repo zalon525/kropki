@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scene start="330 80">
+	<entity class="com.galas.filip.kropki.entity.Text" layer="-1">
+		<position>0 0</position>
+		<text>YOU HAVE BEEN ARRESTED</text>
+		<size>50</size>
+		<color>255 255 255</color>
+	</entity>
+	
+	<entity class="com.galas.filip.kropki.entity.Text" layer="-1">
+		<position>20 85</position>
+		<text>Jail (your only option) -></text>
+		<size>15</size>
+		<color>255 255 255</color>
+	</entity>
+	
+	<entity class="com.galas.filip.kropki.entity.Link" layer="-1">
+		<position>220 80</position>
+		<scenename>/jail.xml</scenename>
+		<activationoffset>12</activationoffset>
+	</entity>
+	
+	<entity class="com.galas.filip.kropki.entity.ColloredDot" layer="-1">
+		<position>220 80</position>
+		<size>12</size>
+		<color>100 12 120</color>
+	</entity>
+</scene>

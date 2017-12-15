@@ -1,5 +1,7 @@
-*.properties
-.*
-!.gitignore
+.classpath
+.project
+.settings/
+*.iml
+.idea
 /bin/
-/scenes/
+
